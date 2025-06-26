@@ -31,12 +31,12 @@ pipeline {
                             def flowId = flowFile.tokenize('/').last().replace('.json', '')
                             def fileUrl = "${REPO_URL}/${flowFile}"
                             def path = "/flows"
+                            def releaseName = "langflow-${flowId}".toLowerCase()
 
                             echo "Deploying Helm release for flow: ${flowId}"
                             sh """
-                            helm upgrade --install langflow-${flowId} ${HELM_PATH} \\
+                            helm upgrade --install ${releaseName} ${HELM_PATH} \\
                               --set flow.flow-id=${flowId} \\
-                              --set downloadFlows.path=${path} \\
                               --set downloadFlows.flows[0].url=${fileUrl}
                             """
                         }
