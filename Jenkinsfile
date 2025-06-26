@@ -17,7 +17,7 @@ pipeline {
         script {
           // Get list of added/modified .json files in flows dir
           def changedFlows = sh(
-            script: "git diff --name-only HEAD~1 HEAD | grep '^${FLOWS_DIR}/.*\\.json$' || true",
+            script: "git diff --name-only HEAD~1 HEAD | grep '^\\${FLOWS_DIR}/.*\\.json$'"
             returnStdout: true
           ).trim().split("\n").findAll { it }
 
