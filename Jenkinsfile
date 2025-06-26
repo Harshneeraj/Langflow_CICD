@@ -36,7 +36,7 @@ pipeline {
             echo "Deploying Flow ID: ${flowId}, from path: ${flowDir}"
 
             sh """
-              helm upgrade --install langflow-${flowId} ./langflow-runtime \
+              helm upgrade --install langflow-${flowId} ./helm-chart \
                 --set flow.flow-id=${flowId} \
                 --set flow.downloadFlows.path=/${flowDir}
             """
