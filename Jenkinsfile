@@ -2,8 +2,8 @@ pipeline {
   agent any
 
   environment {
-    FLOW_ID = "${env.FLOW_ID ?: 'default-flow-id'}"
-    FLOWS_PATH = "${env.FLOWS_PATH ?: '/flows'}"
+    FLOW_ID = "abcdef"
+    FLOWS_PATH = ""
   }
 
   stages {
