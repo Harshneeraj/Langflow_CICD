@@ -2,7 +2,10 @@ pipeline {
     agent any
     environment {
         FLOWS_DIR = 'flows'
+        REPO_URL = 'https://raw.githubusercontent.com/Harshneeraj/Langflow_CICD/main'
+        HELM_PATH = './langflow-runtime'
     }
+
     stages {
         stage('Detect Flow Changes') {
             steps {
@@ -20,14 +23,22 @@ pipeline {
                         returnStdout: true
                     ).trim().split('\n')
 
-                    def jsonFlows = changedFiles.findAll { it.startsWith("flows/") && it.endsWith('.json') }
+                    def jsonFlows = changedFiles.findAll { it.startsWith("${FLOWS_DIR}/") && it.endsWith('.json') }
 
                     if (jsonFlows.size() > 0) {
-                        echo "Detected flow changes in: ${jsonFlows}"
+                        echo "Detected flow changes in: ${jsonFlows.join(', ')}"
                         for (flowFile in jsonFlows) {
                             def flowId = flowFile.tokenize('/').last().replace('.json', '')
+                            def fileUrl = "${REPO_URL}/${flowFile}"
                             def path = "/flows"
-                            sh "helm upgrade --install langflow-${flowId} . --set flow.flow-id=${flowId} --set flow.downloadFlows.path=${path}"
+
+                            echo "Deploying Helm release for flow: ${flowId}"
+                            sh """
+                            helm upgrade --install langflow-${flowId} ${HELM_PATH} \\
+                              --set flow.flow-id=${flowId} \\
+                              --set downloadFlows.path=${path} \\
+                              --set downloadFlows.flows[0].url=${fileUrl}
+                            """
                         }
                     } else {
                         echo "No new/changed flow JSONs detected."
