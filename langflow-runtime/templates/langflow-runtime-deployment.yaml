@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ index .Values "flow" "flow-id" }}
+  name: {{ .Release.Name }}
   labels:
     app: {{ index .Values "flow" "flow-id" }}
 spec:
