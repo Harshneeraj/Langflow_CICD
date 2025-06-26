@@ -1,0 +1,18 @@
+flow:
+  replicaCount: 1
+  flow-id: 'your-flow-id'
+  service:
+    port: 7860
+  image:
+    repository: langflowai/langflow
+    tag: latest
+    pullPolicy: IfNotPresent
+  downloadFlows:
+    path: /app/flows
+  backend:
+    externalDatabase:
+      enabled: false
+    sqlite:
+      enabled: false
+
+

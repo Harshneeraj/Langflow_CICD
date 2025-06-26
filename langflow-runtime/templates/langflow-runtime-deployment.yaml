@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ index .Values "flow" "flow-id" }}
+  labels:
+    app: {{ index .Values "flow" "flow-id" }}
+spec:
+  replicas: {{ .Values.flow.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ index .Values "flow" "flow-id" }}
+  template:
+    metadata:
+      labels:
+        app: {{ index .Values "flow" "flow-id" }}
+    spec:
+      containers:
+        - name: {{ index .Values "flow" "flow-id" }}
+          image: {{ .Values.flow.image.repository }}:{{ .Values.flow.image.tag }}
+          imagePullPolicy: {{ .Values.flow.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: 7860
+          volumeMounts:
+            - name: langflow-flows-path
+              mountPath: /app/langflow2/flows
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              set -e &&
+              mkdir -p {{ .Values.flow.downloadFlows.path }} &&
+              {{- range .Values.flow.downloadFlows.flows }}
+              {{- $targetFile := printf "%s/%s.json" $.Values.flow.downloadFlows.path (.uuid | default (.url | sha256sum | trunc 8)) -}}
+              echo "Downloading flows from {{ .url }} to {{ $targetFile }}" &&
+              curl --fail -o '{{ $targetFile }}' \
+                {{- if .basicAuth }}
+                -u "{{ .basicAuth }}" \
+                {{- end }}
+                {{- if .headers }}
+                {{- range $key, $value := .headers }}
+                -H "{{ $key }}: {{ $value }}" \
+                {{- end }}
+                {{- end }}
+                '{{ .url }}' && 
+              {{- if .endpoint }}
+              python -c 'import json, sys;f = sys.argv[1]; data = json.load(open(f));data["endpoint_name"]="{{ .endpoint }}";json.dump(data, open(f, "w"))' '{{ $targetFile }}' &&
+              {{- end }}
+              {{- end }}
+              echo 'Flows downloaded' && 
+              langflow run --backend-only --host 0.0.0.0 --port {{ .Values.flow.service.port }}
+          env:
+            - name: LANGFLOW_LOAD_FLOWS_PATH
+              value: /app/langflow2/flows
+            - name: LANGFLOW_SUPERUSER
+              value: administrator
+            - name: LANGFLOW_SUPERUSER_PASSWORD
+              value: securepassword
+            - name: LANGFLOW_CONFIG_DIR
+              value: /app/langflow2
+            - name: LANGFLOW_COMPONENTS_PATH
+              value: /app/langflow2/components
+            - name: LANGFLOW_SAVE_DB_IN_CONFIG_DIR
+              value: "false"
+            - name: LANGFLOW_UPDATE_STARTER_PROJECTS
+              value: "true"
+      volumes:
+        - name: langflow-flows-path
+          hostPath:
+            path: /flows
+            type: Directory
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0

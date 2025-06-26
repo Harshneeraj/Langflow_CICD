@@ -1,0 +1,51 @@
+postgresql:
+  enabled: true
+  auth:
+    username: shareduser
+    password: sharedpass
+    database: shareddb,langflow
+
+litellm:
+  db:
+    host: kitchen-umbrella-postgres
+    port: "5432"
+    username: shareduser
+    password: sharedpass
+    database: shareddb
+
+langflow:
+  replicaCount: 1
+  image:
+    repository: langflowai/langflow
+    tag: latest
+    pullPolicy: IfNotPresent
+  backend:
+    externalDatabase:
+      enabled: true
+      host: kitchen-umbrella-postgres
+      driver: postgresql
+      port: "5432"
+      user: shareduser
+      password: sharedpass
+      database: langflow
+    sqlite:
+      enabled: false
+
+langflowruntime:
+  replicaCount: 1
+  flow-id: 'your-flow-id'
+  service:
+    port: 7860
+  image:
+    repository: langflowai/langflow
+    tag: latest
+    pullPolicy: IfNotPresent
+  downloadFlows:
+    path: /app/flows
+  backend:
+    externalDatabase:
+      enabled: false
+    sqlite:
+      enabled: false
+
+

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-langflow
+  labels:
+    app: langflow
+spec:
+  replicas: {{ .Values.langflow.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: langflow
+  template:
+    metadata:
+      labels:
+        app: langflow
+    spec:
+      containers:
+        - name: langflow
+          image: {{ .Values.langflow.image.repository }}:{{ .Values.langflow.image.tag }}
+          imagePullPolicy: {{ .Values.langflow.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: 7860
+          volumeMounts:
+            - name: langflow-flows-path
+              mountPath: /app/langflow2/flows
+          env:
+            - name: LANGFLOW_LOAD_FLOWS_PATH
+              value: /app/langflow2/flows
+            - name: LANGFLOW_SUPERUSER
+              value: administrator
+            - name: LANGFLOW_SUPERUSER_PASSWORD
+              value: securepassword
+            - name: LANGFLOW_CONFIG_DIR
+              value: /app/langflow2
+            - name: LANGFLOW_COMPONENTS_PATH
+              value: /app/langflow2/components
+            - name: LANGFLOW_SAVE_DB_IN_CONFIG_DIR
+              value: "false"
+            - name: LANGFLOW_UPDATE_STARTER_PROJECTS
+              value: "true"
+            - name: LANGFLOW_DATABASE_URL
+              value: "postgresql://{{ .Values.langflow.backend.externalDatabase.user }}:{{ .Values.langflow.backend.externalDatabase.password }}@{{ .Values.langflow.backend.externalDatabase.host }}:{{ .Values.langflow.backend.externalDatabase.port }}/{{ .Values.langflow.backend.externalDatabase.database }}"
+      volumes:
+        - name: langflow-flows-path
+          hostPath:
+            path: /flows
+            type: Directory
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0

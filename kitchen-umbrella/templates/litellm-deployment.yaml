@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: litellm-config-file
+data:
+  config.yaml: |
+      model_list: 
+        - model_name: llama3-70b-8192
+          litellm_params:
+            model: groq/llama3-70b-8192
+            api_key: "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"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-litellm
+  labels:
+    app: litellm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: litellm
+  template:
+    metadata:
+      labels:
+        app: litellm
+    spec:
+      containers:
+        - name: litellm
+          image: ghcr.io/berriai/litellm:main-stable
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          env:
+            - name: LITELLM_MASTER_KEY
+              value: "sk-1234"
+            - name: DATABASE_URL
+              value: "postgresql://{{ .Values.litellm.db.username }}:{{ .Values.litellm.db.password }}@{{ .Values.litellm.db.host }}:{{ .Values.litellm.db.port }}/{{ .Values.litellm.db.database }}"
+            - name: STORE_MODEL_IN_DB
+              value: "True"
