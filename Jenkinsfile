@@ -12,7 +12,7 @@ pipeline {
                         returnStdout: true
                     ).trim().split('\n')
 
-                    def jsonFlows = changedFiles.findAll { it.startsWith("${FLOWS_DIR}/") && it.endsWith('.json') }
+                    def jsonFlows = changedFiles.findAll { it.startsWith("/flows/") && it.endsWith('.json') }
 
                     if (jsonFlows.size() > 0) {
                         echo "Detected flow changes in: ${jsonFlows}"
