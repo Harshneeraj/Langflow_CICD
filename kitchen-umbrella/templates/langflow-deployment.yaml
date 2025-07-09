@@ -40,6 +40,13 @@ spec:
               value: "true"
             - name: LANGFLOW_DATABASE_URL
               value: "postgresql://{{ .Values.langflow.backend.externalDatabase.user }}:{{ .Values.langflow.backend.externalDatabase.password }}@{{ .Values.langflow.backend.externalDatabase.host }}:{{ .Values.langflow.backend.externalDatabase.port }}/{{ .Values.langflow.backend.externalDatabase.database }}"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
       volumes:
         - name: langflow-flows-path
           hostPath:

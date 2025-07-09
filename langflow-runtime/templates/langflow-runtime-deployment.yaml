@@ -62,6 +62,13 @@ spec:
               value: "false"
             - name: LANGFLOW_UPDATE_STARTER_PROJECTS
               value: "true"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
       volumes:
         - name: langflow-flows-path
           hostPath:
