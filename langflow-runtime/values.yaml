@@ -10,8 +10,15 @@ flow:
   downloadFlows:
     path: /app/flows
   backend:
+    backend:
     externalDatabase:
-      enabled: false
+      enabled: true
+      host: kitchen-umbrella-postgres
+      driver: postgresql
+      port: "5432"
+      user: shareduser
+      password: sharedpass
+      database: langflow_prd
     sqlite:
       enabled: false
 

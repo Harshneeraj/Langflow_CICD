@@ -62,6 +62,8 @@ spec:
               value: "false"
             - name: LANGFLOW_UPDATE_STARTER_PROJECTS
               value: "true"
+            - name: LANGFLOW_DATABASE_URL
+              value: "postgresql://{{ .Values.langflow.backend.externalDatabase.user }}:{{ .Values.langflow.backend.externalDatabase.password }}@{{ .Values.langflow.backend.externalDatabase.host }}:{{ .Values.langflow.backend.externalDatabase.port }}/{{ .Values.langflow.backend.externalDatabase.database }}"
           resources:
             requests:
               memory: "128Mi"
